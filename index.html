@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket Chat</title>
+  <style>
+    body { font-family: Arial; max-width: 500px; margin: 40px auto; }
+    #chat { border: 1px solid #ccc; height: 300px; padding: 10px; overflow-y: auto; }
+    input { width: 75%; padding: 8px; }
+    button { padding: 8px; }
+  </style>
+</head>
+<body>
+
+  <h3>Live Chat (WebSockets)</h3>
+  <div id="chat"></div><br>
+
+  <input id="message" placeholder="Type a message..." />
+  <button onclick="sendMessage()">Send</button>
+
+  <script>
+    const username = prompt('Enter your name');
+    const chat = document.getElementById('chat');
+    const socket = new WebSocket('ws://localhost:3000');
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      addMessage(`${data.user}: ${data.text}`);
+    };
+
+    function sendMessage() {
+      const input = document.getElementById('message');
+      if (!input.value) return;
+
+      const message = {
+        user: username,
+        text: input.value
+      };
+
+      socket.send(JSON.stringify(message));
+      addMessage(`You: ${input.value}`);
+      input.value = '';
+    }
+
+    function addMessage(text) {
+      const msg = document.createElement('div');
+      msg.innerText = text;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+
+</body>
+</html>
